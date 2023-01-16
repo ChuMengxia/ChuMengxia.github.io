@@ -1,7 +1,7 @@
 @font-face{
     font-family: '新叶念体';
     font-display: swap;
-    src: url('font/XinYeNianTi-2.otf') format("opentype");
+    src: url('/font/XinYeNianTi-2.otf') format("opentype");
 }
 
 body {
