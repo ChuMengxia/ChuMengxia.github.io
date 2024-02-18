@@ -1496,11 +1496,6 @@ body {
   font-family: sans-serif;
   line-height: 2;
   -webkit-tap-highlight-color: rgba(0,0,0,0);
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
-  -webkit-user-select: none;
 }
 *::-webkit-scrollbar {
   width: 5px;
@@ -1599,6 +1594,13 @@ a {
 }
 a:hover {
   color: #ff88b7;
+}
+#site-title,
+#site-subtitle,
+.site-name,
+#aside-content .author-info__name,
+#aside-content .author-info__description {
+  font-family: KaiTi;
 }
 .is-center {
   text-align: center;
@@ -2099,6 +2101,7 @@ figure.highlight pre .javascript .function {
   height: 100%;
   vertical-align: top;
   text-align: center;
+  font-family: KaiTi;
 }
 @media screen and (max-width: 768px) {
   .error404 #error-wrap .error-content .error-info {
