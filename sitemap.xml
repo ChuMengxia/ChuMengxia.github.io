@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  
+  <url>
+    <loc>https://chumengxia.github.io/posts/b4ba7576</loc>
+    
+    <lastmod>2024-10-05</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://chumengxia.github.io/history/index.html</loc>
+    
+    <lastmod>2024-10-05</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://chumengxia.github.io/message/index.html</loc>
+    
+    <lastmod>2024-10-04</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://chumengxia.github.io/music/index.html</loc>
+    
+    <lastmod>2024-10-04</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://chumengxia.github.io/about/index.html</loc>
+    
+    <lastmod>2024-10-04</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+
+  <url>
+    <loc>https://chumengxia.github.io/</loc>
+    <lastmod>2024-10-13</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+
+  
+  <url>
+    <loc>https://chumengxia.github.io/tags/%E7%A2%8E%E7%A2%8E%E5%BF%B5/</loc>
+    <lastmod>2024-10-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+
+  
+  <url>
+    <loc>https://chumengxia.github.io/categories/%E6%97%A5%E5%B8%B8/</loc>
+    <lastmod>2024-10-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+</urlset>
