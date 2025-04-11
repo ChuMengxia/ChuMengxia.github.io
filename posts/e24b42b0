@@ -1,0 +1,305 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1"><title>从零开始的群机器人部署之旅 | 楚孟夏的自留地</title><noscript>开启JavaScript才能访问本站哦~</noscript><link rel="icon" href="https://cmxblog.obs.cn-east-3.myhuaweicloud.com/resources/whitemiku1.png"><!-- index.css--><link rel="stylesheet" href="/css/index.css?v=2.1.1"><!-- inject head--><meta name="bing-site-verification" content="3DFD4A5ED07C53B7AA942D78FD17BEF9"><meta name="google-site-verification" content="RDY_grx4hZZaeDLTpe5sb30neX7-7oZCcZmHI2HQ0Y4"><link rel="canonical" href="https://chumengxia.github.io/posts/e24b42b0"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"><!-- aplayer--><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aplayer/1.10.1/APlayer.min.css"><!-- swiper--><!-- fancybox ui--><!-- katex--><!-- Open Graph--><meta name="description" content="本文以部署鸣潮群机器人的全过程为例介绍了如何基于GScore和nonebot在本地搭建属于自己的群机器人"><!-- pwa--><meta name="apple-mobile-web-app-capable" content="楚孟夏的自留地"><meta name="theme-color" content="var(--efu-main)"><meta name="apple-mobile-web-app-status-bar-style" content="var(--efu-main)"><link rel="bookmark" href="https://cmxblog.obs.cn-east-3.myhuaweicloud.com/resources/whitemiku1.png"><link rel="apple-touch-icon" href="https://cmxblog.obs.cn-east-3.myhuaweicloud.com/resources/whitemiku1.png" sizes="180x180"><script>console.log(' %c Solitude %c ' + '2.1.1' + ' %c https://github.com/everfu/hexo-theme-solitude',
+    'background:#35495e ; padding: 1px; border-radius: 3px 0 0 3px;  color: #fff',
+    'background:#ff9a9a ; padding: 1px; border-radius: 0 3px 3px 0;  color: #fff',
+    'background:unset ; padding: 1px; border-radius: 0 3px 3px 0;  color: #fff')
+</script><script type="text/javascript"> (function(c,l,a,r,i,t,y){ c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)}; t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i; y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y); })(window, document, "clarity", "script", "f9w6e1wnft"); </script><script>(()=>{
+        const saveToLocal = {
+            set: function setWithExpiry(key, value, ttl) {
+                if (ttl === 0)
+                    return
+                const now = new Date()
+                const expiryDay = ttl * 86400000
+                const item = {
+                    value: value,
+                    expiry: now.getTime() + expiryDay
+                }
+                localStorage.setItem(key, JSON.stringify(item))
+            },
+            get: function getWithExpiry(key) {
+                const itemStr = localStorage.getItem(key)
+
+                if (!itemStr) {
+                    return undefined
+                }
+                const item = JSON.parse(itemStr)
+                const now = new Date()
+
+                if (now.getTime() > item.expiry) {
+                    localStorage.removeItem(key)
+                    return undefined
+                }
+                return item.value
+            }
+        };
+        window.utils = {
+            saveToLocal: saveToLocal,
+            getCSS: (url, id = false) => new Promise((resolve, reject) => {
+              const link = document.createElement('link')
+              link.rel = 'stylesheet'
+              link.href = url
+              if (id) link.id = id
+              link.onerror = reject
+              link.onload = link.onreadystatechange = function() {
+                const loadState = this.readyState
+                if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+                link.onload = link.onreadystatechange = null
+                resolve()
+              }
+              document.head.appendChild(link)
+            }),
+            getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+              const script = document.createElement('script')
+              script.src = url
+              script.async = true
+              script.onerror = reject
+              script.onload = script.onreadystatechange = function() {
+                const loadState = this.readyState
+                if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+                script.onload = script.onreadystatechange = null
+                resolve()
+              }
+
+              Object.keys(attr).forEach(key => {
+                script.setAttribute(key, attr[key])
+              })
+
+              document.head.appendChild(script)
+            }),
+            addGlobalFn: (key, fn, name = false, parent = window) => {
+                const globalFn = parent.globalFn || {}
+                const keyObj = globalFn[key] || {}
+
+                if (name && keyObj[name]) return
+
+                name = name || Object.keys(keyObj).length
+                keyObj[name] = fn
+                globalFn[key] = keyObj
+                parent.globalFn = globalFn
+            },
+            addEventListenerPjax: (ele, event, fn, option = false) => {
+              ele.addEventListener(event, fn, option)
+              utils.addGlobalFn('pjax', () => {
+                  ele.removeEventListener(event, fn, option)
+              })
+          },
+        }
+    })()</script><!-- theme--><script>initTheme = () => {
+    let isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches
+    const cachedMode = utils.saveToLocal.get('theme');
+    if (cachedMode === undefined) {
+        const nowMode =
+            isDarkMode ? 'dark' : 'light'
+        document.documentElement.setAttribute('data-theme', nowMode);
+    } else {
+        document.documentElement.setAttribute('data-theme', cachedMode);
+    }
+    typeof rm === 'object' && rm.mode(cachedMode === 'dark' && isDarkMode)
+}
+initTheme()</script><!-- global head--><script>const GLOBAL_CONFIG = {
+    root: '/',
+    algolia: undefined,
+    localsearch: {"preload":false,"path":"/search.xml"},
+    runtime: '2022-08-22 17:29:00',
+    lazyload: {
+        enable: true,
+        error: '/img/error_load.avif'
+    },
+    copyright: false,
+    highlight: {"limit":200,"expand":true,"copy":true,"syntax":"highlight.js"},
+    randomlink: false,
+    lang: {"theme":{"dark":"已切换至深色模式","light":"已切换至浅色模式"},"copy":{"success":"复制成功","error":"复制失败"},"backtop":"返回顶部","time":{"day":"天前","hour":"小时前","just":"刚刚","min":"分钟前","month":"个月前"},"day":" 天","f12":"开发者模式已打开，请遵循GPL协议。","totalk":"无需删除空行，直接输入评论即可","search":{"empty":"找不到你查询的内容：${query}","hit":"找到 ${hits} 条结果，用时 ${time} 毫秒","placeholder":"输入关键词快速查找","count":"共 <b>${count}</b> 条结果。"}},
+    aside: {
+        sayhello: {
+            morning: "✨ 早上好!又是新的一天",
+            noon: "是时候休息一会了!",
+            afternoon: "下午茶时间 🍵",
+            night: "晚上好!今天过得如何?",
+            goodnight: "祝好梦 😴",
+        },
+        sayhello2: ["不管你在世界的哪个地方","我一定会","再去见你的"],
+        sayhello3: {
+            prefix: '好久不见，',
+            back: '欢迎再次回来，',
+        },
+    },
+    covercolor: {
+        enable: false
+    },
+    comment: false,
+    lightbox: 'null',
+    post_ai: false,
+    right_menu: {"mode":{"dark":"深色模式","light":"浅色模式"},"img_error":"此图片无法复制与下载","translate":true,"ctrlOriginalMenu":"按住Ctrl+右键可打开浏览器右键菜单"},
+    translate: {"translateDelay":0,"defaultEncoding":2},
+    lure: false,
+    expire: false,
+};</script><!-- page-config head--><script id="config-diff">var PAGE_CONFIG = {
+    is_post: true,
+    is_page: false,
+    is_home: false,
+    page: '',
+    toc: true,
+    comment: true,
+    ai_text: false,
+    color: false,
+}</script><meta name="generator" content="Hexo 7.3.0"></head><body id="body"><!-- universe--><canvas id="universe"></canvas><!-- background img--><!-- loading--><!-- console--><div id="console"><div class="close-btn" onclick="sco.hideConsole()"><i class="solitude fa-solid fa-xmark"></i></div><div class="console-card-group"><div class="console-card-group-right"><div class="console-card tags" onclick="sco.hideConsole()"><div class="card-content"><div class="author-content-item-tips">标签</div><div class="author-content-item-title">寻找感兴趣的领域</div></div><div class="card-tag-cloud"><a href="/tags/python/">python<sup>1</sup></a><a href="/tags/git/">git<sup>1</sup></a><a href="/tags/%E7%A2%8E%E7%A2%8E%E5%BF%B5/">碎碎念<sup>1</sup></a></div></div><div class="console-card history" onclick="sco.hideConsole()"><ul class="card-archive-list"><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2025/04/"><span class="card-archive-list-date">2025/04</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">1</span><span class="card-archive-list-count-unit">篇</span></div></a></li><li class="card-archive-list-item"><a class="card-archive-list-link" href="/archives/2022/08/"><span class="card-archive-list-date">2022/08</span><div class="card-archive-list-count-group"><span class="card-archive-list-count">1</span><span class="card-archive-list-count-unit">篇</span></div></a></li></ul></div></div></div><div class="button-group"><div class="console-btn-item"><span class="darkmode_switchbutton" onclick="sco.switchDarkMode()" title="昼夜切换"><i class="solitude fa-solid fa-circle-half-stroke"></i></span></div><div class="console-btn-item" id="consoleHideAside"><span class="asideSwitch" onclick="sco.switchHideAside()" title="边栏显示控制"><i class="solitude fas fa-arrows-left-right-to-line"></i></span></div></div><div class="console-mask" onclick="sco.hideConsole()"></div></div><!-- sidebar--><div id="sidebar" style="zoom: 1;"><div id="menu-mask" style="display: none;"></div><div id="sidebar-menus"><div class="site-data"><div class="data-item is-center"><div class="data-item-link"><a href="/archives/"><div class="headline">文章</div><div class="length-num">2</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/categories/"><div class="headline">分类</div><div class="length-num">2</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/tags/"><div class="headline">标签</div><div class="length-num">3</div></a></div></div></div><span class="sidebar-menu-item-title">功能</span><div class="sidebar-menu-item"><span class="darkmode_switchbutton menu-child" onclick="sco.switchDarkMode()"><i class="solitude fa-solid fa-circle-half-stroke"></i><span>显示模式</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/archives/"><span>归档</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><span>分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><span>标签</span></a></div><div class="menus_item"><a class="site-page" href="/music/"><span>音乐</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span>其它</span></a><ul class="menus_item_child"><li><a class="site-page child" href="/about/"><i class="solitude  fa-solid fa-user"></i><span>关于我</span></a></li><li><a class="site-page child" href="/history/"><i class="solitude  fa-solid fa-calendar-days"></i><span>关于本站</span></a></li><li><a class="site-page child" href="/message/"><i class="solitude  fa-solid fa-comment"></i><span>留言板</span></a></li></ul></div></div><span class="sidebar-menu-item-title">标签</span><div class="card-widget card-tags card-archives card-webinfo card-allinfo"><div class="card-tag-cloud"><a href="/tags/python/">python<sup>1</sup></a><a href="/tags/git/">git<sup>1</sup></a><a href="/tags/%E7%A2%8E%E7%A2%8E%E5%BF%B5/">碎碎念<sup>1</sup></a></div></div><span class="sidebar-menu-item-title">网站信息</span><div class="webinfo"><div class="webinfo-item"><div class="webinfo-item-title"><i class="item-icon solitude fa-solid fa-file-word"></i><div class="item-name">全站字数 :</div></div><div class="item-count">2k</div></div></div></div></div><!-- keyboard--><!-- righhtside--><div class="post" id="body-wrap"><header class="post-bg" id="page-header"><nav class="show" id="nav"><div id="nav-group"><div id="blog_name"><a id="site-name" href="/" title="返回博客主页"><span class="title">楚孟夏的自留地</span><i class="solitude fa-solid fa-home"></i></a></div><div id="page-name-mask"><div id="page-name"><a id="page-name-text" onclick="sco.toTop()">从零开始的群机器人部署之旅</a></div></div><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/archives/"><span>归档</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><span>分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><span>标签</span></a></div><div class="menus_item"><a class="site-page" href="/music/"><span>音乐</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><span>其它</span></a><ul class="menus_item_child"><li><a class="site-page child" href="/about/"><i class="solitude  fa-solid fa-user"></i><span>关于我</span></a></li><li><a class="site-page child" href="/history/"><i class="solitude  fa-solid fa-calendar-days"></i><span>关于本站</span></a></li><li><a class="site-page child" href="/message/"><i class="solitude  fa-solid fa-comment"></i><span>留言板</span></a></li></ul></div></div></div><div id="nav-left"></div><div id="nav-right"><div class="nav-button" id="randomPost_button"><a class="site-page" onclick="toRandomPost()" title="随机一篇文章" href="javascript:void(0);"><i class="solitude fa-solid fa-dice-d6"></i></a></div><div class="nav-button" id="search-button"><a class="site-page social-icon search" href="javascript:void(0);" title="搜索"><i class="solitude fa-solid fa-magnifying-glass"></i></a></div><div class="nav-button" id="nav-console"><a class="console_switchbutton" onclick="sco.showConsole()" title="中控台" href="javascript:void(0);"><label><i class="left"></i><i class="center"></i><i class="right"></i></label></a></div><div class="nav-button" id="nav-totop" onclick="sco.toTop()"><a class="totopbtn"><i class="solitude fa-solid fa-arrow-up"></i><span id="percent">0</span></a></div><div id="toggle-menu"><a class="site-page"><i class="solitude fa-solid fa-bars"></i></a></div></div></div></nav><div class="coverdiv" id="coverdiv"><img class="nolazyload" id="post-cover" src="https://cmxblog.obs.cn-east-3.myhuaweicloud.com/resources/qqbot/banner.jpeg" alt="从零开始的群机器人部署之旅"></div><div id="post-info"><div id="post-firstinfo"><div class="meta-firstline"><a class="post-meta-original" title="该文章为原创文章，注意版权协议">原创</a><span class="post-meta-categories"><a class="post-meta-categories" href="/categories/%E6%8A%80%E6%9C%AF/">技术</a></span><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/python/"><span class="tags-name tags-punctuation"><i class="solitude fa-solid fa-hashtag"></i>python</span></a><a class="post-meta__tags" href="/tags/git/"><span class="tags-name tags-punctuation"><i class="solitude fa-solid fa-hashtag"></i>git</span></a></div></div></div></div><h1 class="post-title">从零开始的群机器人部署之旅</h1><div id="post-meta"><div class="meta-secondline"><span class="post-meta-date" title="发布于 2025-04-11 17:00:00"><i class="post-meta-icon solitude fas fa-calendar-days"></i><time datetime="2025-04-11T09:00:00.000Z">2025-04-11T09:00:00.000Z</time></span><span class="post-meta-date" title="最后更新于 2025-04-11 19:06:52"><i class="post-meta-icon solitude fa-solid fa-arrows-rotate"></i><time datetime="2025-04-11T11:06:52.921Z">2025-04-11T11:06:52.921Z</time></span><span class="post-meta-wordcount"><i class="post-meta-icon solitude fa-solid fa-file-word" title="文章字数"></i><span class="word-count">1.1k</span><span class="post-meta-separator"></span></span><span class="post-meta-commentcount" title="评论数" onclick="sco.scrollTo('post-comment')"><i class="solitude fa-solid fa-comment"></i><a href="/posts/e24b42b0#post-comment"></a></span></div></div></div><section class="main-hero-waves-area waves-area"><svg class="waves-svg" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink" viewBox="0 24 150 28" preserveAspectRatio="none" shape-rendering="auto"><defs><path id="gentle-wave" d="M -160 44 c 30 0 58 -18 88 -18 s 58 18 88 18 s 58 -18 88 -18 s 58 18 88 18 v 44 h -352 Z"></path></defs><g class="parallax"><use href="#gentle-wave" x="48" y="0"></use><use href="#gentle-wave" x="48" y="3"></use><use href="#gentle-wave" x="48" y="5"></use><use href="#gentle-wave" x="48" y="7"></use></g></svg></section></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="0-前言"><a href="#0-前言" class="headerlink" title="0.前言"></a>0.前言</h1><p>嗯 好久没写博客了</p>
+<p>实在是没啥可写</p>
+<p>博主入坑鸣潮已有段时间 乐在其中</p>
+<p>逛论坛时总觉得群机器人生成的图比小程序好看</p>
+<p>可博主深度社恐又不想加群</p>
+<p>于是便有了本文</p>
+<h1 id="1-在QQ开放平台创建机器人"><a href="#1-在QQ开放平台创建机器人" class="headerlink" title="1.在QQ开放平台创建机器人"></a>1.在QQ开放平台创建机器人</h1><p>首先使用面对面建群创建一个只有自己的群</p>
+<p>(自已为群主或管理员且群成员不超过20的群亦可)</p>
+<p>打开<a target="_blank" rel="noopener" href="https://q.qq.com/#/">QQ开放平台</a>注册并登录账号</p>
+<p>然后向下翻 找到<code>创建机器人</code> 填写相关信息完成创建</p>
+<p>随后在<code>沙箱配置</code>中选择即将添加机器人的群</p>
+<p>使用该<a target="_blank" rel="noopener" href="https://iplark.com/myip">网页</a>查询自己的IP并添加到开发管理的IP白名单中</p>
+<p>之后在移动端QQ打开该群 进入右上角菜单选择群机器人 再切换到其他 便能将刚刚创建的机器人添加到群中</p>
+<h1 id="2-安装nonebot"><a href="#2-安装nonebot" class="headerlink" title="2.安装nonebot"></a>2.安装nonebot</h1><p>在电脑上安装<a target="_blank" rel="noopener" href="https://www.python.org/downloads/">python</a>(版本大于等于3.9) <a target="_blank" rel="noopener" href="https://git-scm.com/downloads">git</a></p>
+<p>打开终端 执行以下命令以安装pipx</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">python -m pip install --user pipx</span><br><span class="line">python -m pipx ensurepath</span><br></pre></td></tr></table></figure>
+
+<p>然后执行以下命令以安装nonebot</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pipx install nb-cli</span><br></pre></td></tr></table></figure>
+
+<h1 id="3-使用nonebot创建机器人"><a href="#3-使用nonebot创建机器人" class="headerlink" title="3.使用nonebot创建机器人"></a>3.使用nonebot创建机器人</h1><p>在想要创建机器人的目录打开终端 运行以下命令</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nb create</span><br></pre></td></tr></table></figure>
+
+<p>随后进入创建项目的流程</p>
+<p>1.模板选择<code>bootstrap</code></p>
+<p>2.名称随意</p>
+<p>3.适配器选择<code>QQ(QQ官方机器人)</code> (使用上下方向键移动 空格选定 回车提交)</p>
+<p>4.驱动器选择<code>FastAPI  HTTPX webscokets</code></p>
+<p>5.后两项都选择<code>是</code></p>
+<p>6.内置插件选择<code>echo</code></p>
+<p>提示完成则创建成功</p>
+<h1 id="4-连接至官方机器人并测试"><a href="#4-连接至官方机器人并测试" class="headerlink" title="4.连接至官方机器人并测试"></a>4.连接至官方机器人并测试</h1><p><em>本部分内容参考<a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_58403216/article/details/144715878">文章</a></em></p>
+<p>在部署机器人的目录打开终端 运行以下命令来安装适配器</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install nonebot-adapter-qq</span><br></pre></td></tr></table></figure>
+
+<p>打开目录中的<code>.env.prod</code>文件 在末尾粘贴如下代码 其中的id token secret字段请自行替换为QQ开放平台中所提供的值</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">QQ_BOTS=&#x27;</span><br><span class="line">[</span><br><span class="line">  &#123;</span><br><span class="line">    &quot;id&quot;: &quot;xxx&quot;,</span><br><span class="line">    &quot;token&quot;: &quot;xxx&quot;,</span><br><span class="line">    &quot;secret&quot;: &quot;xxx&quot;,</span><br><span class="line">    &quot;intent&quot;: &#123;</span><br><span class="line">      &quot;c2c_group_at_messages&quot;: true</span><br><span class="line">    &#125;,</span><br><span class="line">    &quot;use_websocket&quot;: true</span><br><span class="line">  &#125;</span><br><span class="line">]</span><br><span class="line">&#x27;</span><br></pre></td></tr></table></figure>
+
+<p>在目录中创建文件<code>bot.py</code> 写入如下代码</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> nonebot</span><br><span class="line"><span class="keyword">from</span> nonebot.adapters.qq <span class="keyword">import</span> Adapter <span class="keyword">as</span> QQAdapter</span><br><span class="line"> </span><br><span class="line">nonebot.init()</span><br><span class="line"> </span><br><span class="line">driver = nonebot.get_driver()</span><br><span class="line">driver.register_adapter(QQAdapter)</span><br><span class="line"> </span><br><span class="line">nonebot.load_builtin_plugins(<span class="string">&#x27;echo&#x27;</span>, <span class="string">&#x27;single_session&#x27;</span>)</span><br><span class="line"> </span><br><span class="line">nonebot.load_from_toml(<span class="string">&quot;pyproject.toml&quot;</span>)</span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    nonebot.run()</span><br></pre></td></tr></table></figure>
+
+<p>在本目录打开终端 执行命令</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nb run --reload</span><br></pre></td></tr></table></figure>
+
+<p>观察提示 若有形如 QQ | Bot {id} connected的输出说明连接成功</p>
+<p>可以在QQ群中发送格式为”@机器人 &#x2F;echo 任意内容”的消息来测试</p>
+<p>机器人回复相同内容则测试通过</p>
+<h1 id="5-安装并启动GScore"><a href="#5-安装并启动GScore" class="headerlink" title="5.安装并启动GScore"></a>5.安装并启动GScore</h1><p>打开终端 执行如下命令来安装uv(用于安装与启动GScore)</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install uv</span><br></pre></td></tr></table></figure>
+
+<p>然后使用cd命令切换至本地部署机器人的目录的上一级 执行如下命令来安装GScore及其依赖</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">git clone https://github.com/Genshin-bots/gsuid_core.git --depth=1 --single-branch</span><br><span class="line">uv sync</span><br><span class="line">uv run python -m ensurepip</span><br></pre></td></tr></table></figure>
+
+<p>安装完成后cd至gsuid_core 运行如下命令来启动它</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">uv run core</span><br></pre></td></tr></table></figure>
+
+<h1 id="6-通过网页控制台安装插件"><a href="#6-通过网页控制台安装插件" class="headerlink" title="6.通过网页控制台安装插件"></a>6.通过网页控制台安装插件</h1><p>在运行上面的命令后找到<strong>WebConsole挂载成功</strong>的输出 通过后面的链接访问网页控制台</p>
+<p>默认的用户及密码均为root</p>
+<p>登录后进入插件管理下载所需插件</p>
+<p>(热门游戏的群机器人插件都在这了)</p>
+<p>同时挂载到公网的相关设置也可以通过网页控制台进行调整</p>
+<p>将IP改为0.0.0.0并放行服务器端口(修改IP的配置文件为gsuid_core&#x2F;data&#x2F;config.json)</p>
+<p>之后重启GScore</p>
+<h1 id="7-将GScore连接至nonebot"><a href="#7-将GScore连接至nonebot" class="headerlink" title="7.将GScore连接至nonebot"></a>7.将GScore连接至nonebot</h1><p>在已部署机器人的目录中打开终端并运行如下命令</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nb plugin install nonebot-plugin-genshinuid</span><br></pre></td></tr></table></figure>
+
+<p>随后使用nb run启动机器人即可</p>
+<h1 id="大功告成"><a href="#大功告成" class="headerlink" title="大功告成"></a>大功告成</h1><p>按照所安装插件对应的命令就可以随意地使用群机器人了！！！</p>
+<p>写得还是比较粗糙啊 凑合能看吧</p>
+<p>要搞到公网估计得在服务器上搞吧</p>
+<p>对了 开放平台那个密钥好像还有时间限制</p>
+<p>果然真是自己玩啊</p>
+</article><div class="post-copyright"><div class="post-copyright__author_group"><a class="post-copyright__author_img" href="/about/"><img class="post-copyright__author_img_front" src="https://cmxblog.obs.cn-east-3.myhuaweicloud.com/resources/whitemiku1.png"></a><div class="post-copyright__author_name">楚孟夏的自留地</div><div class="post-copyright__author_desc">“想和你重新认识一次 从你叫什么名字说起”</div></div><div class="post-tools" id="post-tools"><div class="post-tools-left"><div id="quit-box" onclick="RemoveRewardMask()"></div></div></div><div class="post-copyright__notice"><span class="post-copyright-info">本文是原创文章，采用<a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">CC BY-NC-SA 4.0</a>协议，完整转载请注明来自<a href="/">楚孟夏的自留地</a></span></div></div><div class="post-tools-right"><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/python/"><span class="tags-punctuation"><i class="solitude fa-solid fa-hashtag"></i>python<span class="tagsPageCount">1</span></span></a><a class="post-meta__tags" href="/tags/git/"><span class="tags-punctuation"><i class="solitude fa-solid fa-hashtag"></i>git<span class="tagsPageCount">1</span></span></a></div></div></div><nav class="needEndHide pagination-post" id="pagination"><div class="next-post pull-full"><a href="/posts/b4ba7576"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">代码小白的建站历程</div></div></a></div></nav><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="solitude fa-solid fa-comment"></i><span> 评论</span><span class="count"> ()</span></div></div><div class="comment-wrap"><div id="giscus-wrap"></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="card-content"><div class="card-info-avatar is-center"><div class="author-info__top-group"><div class="author-info__sayhi" id="author-info__sayhi" onclick="sco.changeSayHelloText()">sayhello.morning</div></div></div><div class="avatar-img-group"><img class="avatar-img" alt="头像" src="https://cmxblog.obs.cn-east-3.myhuaweicloud.com/resources/whitemiku1.png"></div><div class="author-info__description_group"><div class="author-info__description"></div><div class="author-info__description2"></div></div><div class="author-info__bottom-group"><a class="author-info__bottom-group-left" href="/about/"><div class="author-info__name">楚孟夏没有脑壳</div><div class="author-info__desc">“想和你重新认识一次 从你叫什么名字说起”</div></a><div class="card-info-social-icons is-center"><a class="social-icon" target="_blank" rel="noopener" href="https://github.com/Chumengxia" title="Github"><i class="solitude  fab fa-github"></i></a></div></div></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="solitude fa-solid fa-bars"></i><span>文章目录</span></div><div class="toc-content" id="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#0-%E5%89%8D%E8%A8%80"><span class="toc-text">0.前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#1-%E5%9C%A8QQ%E5%BC%80%E6%94%BE%E5%B9%B3%E5%8F%B0%E5%88%9B%E5%BB%BA%E6%9C%BA%E5%99%A8%E4%BA%BA"><span class="toc-text">1.在QQ开放平台创建机器人</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#2-%E5%AE%89%E8%A3%85nonebot"><span class="toc-text">2.安装nonebot</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#3-%E4%BD%BF%E7%94%A8nonebot%E5%88%9B%E5%BB%BA%E6%9C%BA%E5%99%A8%E4%BA%BA"><span class="toc-text">3.使用nonebot创建机器人</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#4-%E8%BF%9E%E6%8E%A5%E8%87%B3%E5%AE%98%E6%96%B9%E6%9C%BA%E5%99%A8%E4%BA%BA%E5%B9%B6%E6%B5%8B%E8%AF%95"><span class="toc-text">4.连接至官方机器人并测试</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#5-%E5%AE%89%E8%A3%85%E5%B9%B6%E5%90%AF%E5%8A%A8GScore"><span class="toc-text">5.安装并启动GScore</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#6-%E9%80%9A%E8%BF%87%E7%BD%91%E9%A1%B5%E6%8E%A7%E5%88%B6%E5%8F%B0%E5%AE%89%E8%A3%85%E6%8F%92%E4%BB%B6"><span class="toc-text">6.通过网页控制台安装插件</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#7-%E5%B0%86GScore%E8%BF%9E%E6%8E%A5%E8%87%B3nonebot"><span class="toc-text">7.将GScore连接至nonebot</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%A4%A7%E5%8A%9F%E5%91%8A%E6%88%90"><span class="toc-text">大功告成</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="solitude fa-solid fa-map"></i><span>最近发布</span></div><div class="aside-list"><a class="aside-list-item" href="/posts/e24b42b0" title="从零开始的群机器人部署之旅"><div class="thumbnail"><img alt="从零开始的群机器人部署之旅" src="https://cmxblog.obs.cn-east-3.myhuaweicloud.com/resources/qqbot/banner.jpeg"></div><div class="content"><span class="title" href="/posts/e24b42b0" title="从零开始的群机器人部署之旅">从零开始的群机器人部署之旅</span><span class="article-recent_post_categories" href="/posts/e24b42b0">技术</span></div></a><a class="aside-list-item" href="/posts/b4ba7576" title="代码小白的建站历程"><div class="thumbnail"><img alt="代码小白的建站历程" src="https://cmxblog.obs.cn-east-3.myhuaweicloud.com/resources/cover.jpg"></div><div class="content"><span class="title" href="/posts/b4ba7576" title="代码小白的建站历程">代码小白的建站历程</span><span class="article-recent_post_categories" href="/posts/b4ba7576">日常</span></div></a></div></div></div></div></main><footer id="footer"><div id="footer_deal"><a class="deal_link" target="_blank" rel="noopener" href="https://github.com/Chumengxia" title="Github"><i class="solitude  fab fa-github"></i></a><a class="deal_link" href="/3501116901@qq.com" title="Mail"><i class="solitude  fas fa-mail-bulk"></i></a><div class="nolazyload footer_mini_logo" id="footer_mini_logo" title="返回顶部" onclick="sco.toTop()"><img src alt="返回顶部"></div></div><div id="st-footer"><div class="footer-group"><h3 class="footer-title">导航</h3><div class="footer-links"><a class="footer-item" href="/archives/" title="归档">归档</a><a class="footer-item" href="/categories/" title="分类">分类</a><a class="footer-item" href="/tags/" title="标签">标签</a></div></div></div><div id="footer-bar"><div class="footer-bar-links"><div class="footer-bar-left"><div class="copyright">© 2022 - 2025 By&nbsp;<a class="footer-bar-link" href="/">楚孟夏没有脑壳</a></div></div><div class="footer-bar-right"><a class="footer-bar-link" target="_blank" rel="noopener" href="https://github.com/everfu/hexo-theme-solitude" alt="本博客使用solitude主题">本博客使用solitude主题</a></div></div></div></footer></div><!-- right_menu--><div id="rightMenu"><div class="rightMenu-group rightMenu-small"><div class="rightMenu-item" id="menu-backward"><i class="solitude fa-solid fa-arrow-left"></i></div><div class="rightMenu-item" id="menu-forward"><i class="solitude fa-solid fa-arrow-right"></i></div><div class="rightMenu-item" id="menu-refresh"><i class="solitude fa-solid fa-arrows-rotate"></i></div><div class="rightMenu-item" id="menu-top"><i class="solitude fa-solid fa-arrow-up"></i></div></div><div class="rightMenu-group rightMenu-line rightMenuPlugin"><div class="rightMenu-item" id="menu-copytext"><i class="solitude fa-solid fa-clone"></i><span>复制选中文本</span></div><div class="rightMenu-item" id="menu-pastetext"><i class="solitude fa-solid fa-clipboard"></i><span>粘贴文本</span></div><div class="rightMenu-item" id="menu-commenttext"><i class="solitude fa-solid fa-comment-medical"></i><span>引用到评论</span></div><div class="rightMenu-item" id="menu-newwindow"><i class="solitude fa-regular fa-window-maximize"></i><span>新窗口打开</span></div><div class="rightMenu-item" id="menu-copylink"><i class="solitude fa-solid fa-link"></i><span>复制链接地址</span></div><div class="rightMenu-item" id="menu-copyimg"><i class="solitude fa-solid fa-clone"></i><span>复制此图片</span></div><div class="rightMenu-item" id="menu-downloadimg"><i class="solitude fa-solid fa-cloud-arrow-down"></i><span>下载此图片</span></div><div class="rightMenu-item" id="menu-search"><i class="solitude fa-solid fa-magnifying-glass"></i><span>站内搜索</span></div></div><div class="rightMenu-group rightMenu-line rightMenuOther"><div class="rightMenu-item" onclick="pjax.loadurl('/')||rm.hideRightMenu()"><i class="solitude fas fa-home"></i><span>首页</span></div><div class="rightMenu-item" onclick="pjax.loadUrl('/categories/')||rm.hideRightMenu()"><i class="solitude fas fa-clone"></i><span>分类</span></div><div class="rightMenu-item" onclick="pjax.loadUrl('/tags/')||rm.hideRightMenu()"><i class="solitude fas fa-tags"></i><span>标签</span></div></div><div class="rightMenu-group rightMenu-line rightMenuOther"><div class="rightMenu-item" id="menu-darkmode" onclick="sco.switchDarkMode()"><i class="solitude fa-solid fa-circle-half-stroke"></i><span class="menu-darkmode-text">深色模式</span></div><div class="rightMenu-item" id="menu-translate"><i class="solitude fa-solid fa-language"></i><span>轉為繁體</span></div></div></div><div id="rightmenu-mask"></div><!-- inject body--><div><script src="/js/utils.js?v=2.1.1"></script><script src="/js/main.js?v=2.1.1"></script><script src="/js/third_party/waterfall.min.js?v=2.1.1"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/pjax/0.2.8/pjax.min.js"></script><script src="/js/third_party/universe.min.js?v=2.1.1"></script><script>dark()
+</script><script src="/js/tw_cn.js?v=2.1.1"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-lazyload/19.1.3/lazyload.iife.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/node-snackbar/0.1.16/snackbar.min.js"></script><script>var meting_api = 'https://meting.everfu.cn/?server=:server&type=:type&id=:id&auth=:auth&r=:r';</script><script src="https://cdnjs.cloudflare.com/ajax/libs/aplayer/1.10.1/APlayer.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/meting/2.0.1/Meting.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js"></script><script src="/js/right_menu.js?v=2.1.1"></script><div class="js-pjax"><script>(()=>{
+    const getGiscusTheme = theme => {
+        return theme === 'dark' ? 'dark' : 'light'
+    }
+
+    const loadGiscus = () => {
+        const config = Object.assign({
+            src: 'https://giscus.app/client.js',
+            'data-repo': 'blogcomments',
+            'data-repo-id': 'R_kgDOH3VafQ',
+            'data-category-id': '',
+            'data-mapping': 'pathname',
+            'data-theme': getGiscusTheme(document.documentElement.getAttribute('data-theme')),
+            'data-reactions-enabled': '1',
+            crossorigin: 'anonymous',
+            async: true
+        },"input-position=\"top\"")
+
+        const ele = document.createElement('script')
+        for (let key in config) {
+            ele.setAttribute(key, config[key])
+        }
+        document.getElementById('giscus-wrap').appendChild(ele)
+    }
+
+    const changeGiscusTheme = theme => {
+        const sendMessage = message => {
+            const iframe = document.querySelector('iframe.giscus-frame')
+            if (!iframe) return
+            iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app')
+        }
+
+        sendMessage({
+            setConfig: {
+                theme: getGiscusTheme(theme)
+            }
+        });
+    }
+
+    utils.addGlobalFn('themeChange', changeGiscusTheme, 'giscus')
+
+    if ('Giscus' === 'Giscus' || !false) {
+        if (false) {
+            const giscusWrap = document.getElementById('giscus-wrap')
+            if (giscusWrap) {
+                utils.loadComment(giscusWrap, loadGiscus)
+            }
+        } else {
+            loadGiscus()
+        }
+    } else {
+        window.loadOtherComment = loadGiscus
+    }
+})()</script></div></div><!-- pjax--><script>const pjax = new Pjax({
+    elements: 'a:not([target="_blank"])',
+    selectors: ['title','#body-wrap','#site-config','meta[name="description"]','.js-pjax','meta[property^="og:"]','#config-diff', '.rs_show', '.rs_hide'],
+    cacheBust: false,
+    analytics: false,
+    scrollRestoration: false
+})
+
+document.querySelectorAll('script[data-pjax]').forEach(item => {
+    const newScript = document.createElement('script')
+    const content = item.text || item.textContent || item.innerHTML || ""
+    Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+    newScript.appendChild(document.createTextNode(content))
+    item.parentNode.replaceChild(newScript, item)
+})
+
+document.addEventListener('pjax:complete', () => {
+    window.refreshFn()
+
+    document.querySelectorAll('script[data-pjax]').forEach(item => {
+        const newScript = document.createElement('script')
+        const content = item.text || item.textContent || item.innerHTML || ""
+        Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+        newScript.appendChild(document.createTextNode(content))
+        item.parentNode.replaceChild(newScript, item)
+    })
+
+    GLOBAL_CONFIG.islazyload && window.lazyLoadInstance.update()
+
+})
+
+document.addEventListener('pjax:error', (e) => {
+    if (e.request.status === 404) {
+        pjax.loadUrl('/404.html')
+    }
+})</script><!-- google adsense--><!-- search--><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><button class="search-close-button"><i class="solitude fa-solid fa-xmark"></i></button></nav><div class="search-wrap"><div class="search-box"><input class="search-box-input" id="search-input" type="text" autocomplete="off" spellcheck="false" autocorrect="off" autocapitalize="off" placeholder="输入关键词快速查找"></div><div id="search-results"><div id="search-hits"></div></div><div id="search-pagination"></div><div id="search-tips"></div></div></div><div id="search-mask"></div></div><script src="/js/search/local.js?v=2.1.1"></script><!-- Tianli-Talk--><!-- music--></body></html><script>const posts=["posts/e24b42b0","posts/b4ba7576"];function toRandomPost(){ pjax.loadUrl(GLOBAL_CONFIG.root+posts[Math.floor(Math.random()*posts.length)]); }</script>
